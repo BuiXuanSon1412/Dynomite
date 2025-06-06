@@ -68,3 +68,11 @@ void Screen1ViewBase::flexButtonCallbackHandler(const touchgfx::AbstractButtonCo
         onPlayButtonClicked();
     }
 }
+
+void Screen1ViewBase::handleTickEvent()
+{
+    //Interaction2
+    //When every N tick call virtual function
+    //Call onTickEvent
+    onTickEvent();
+}
