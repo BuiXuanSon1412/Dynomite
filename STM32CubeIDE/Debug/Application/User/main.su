@@ -1,0 +1,17 @@
+/home/bxs/Downloads/Dynomite/Core/Src/main.c:855:13:SPI5_Write	16	static
+/home/bxs/Downloads/Dynomite/Core/Src/main.c:967:6:StartDefaultTask	8	static
+/home/bxs/Downloads/Dynomite/Core/Src/main.c:242:6:SystemClock_Config	96	static
+/home/bxs/Downloads/Dynomite/Core/Src/main.c:150:5:main	112	static
+/home/bxs/Downloads/Dynomite/Core/Src/main.c:699:6:IOE_Init	0	static
+/home/bxs/Downloads/Dynomite/Core/Src/main.c:708:6:IOE_ITConfig	0	static
+/home/bxs/Downloads/Dynomite/Core/Src/main.c:720:6:IOE_Write	32	static
+/home/bxs/Downloads/Dynomite/Core/Src/main.c:731:9:IOE_Read	32	static
+/home/bxs/Downloads/Dynomite/Core/Src/main.c:744:10:IOE_ReadMultiple	24	static
+/home/bxs/Downloads/Dynomite/Core/Src/main.c:753:6:IOE_Delay	0	static
+/home/bxs/Downloads/Dynomite/Core/Src/main.c:881:6:LCD_IO_Init	8	static
+/home/bxs/Downloads/Dynomite/Core/Src/main.c:891:6:LCD_IO_WriteData	16	static
+/home/bxs/Downloads/Dynomite/Core/Src/main.c:907:6:LCD_IO_WriteReg	16	static
+/home/bxs/Downloads/Dynomite/Core/Src/main.c:926:10:LCD_IO_ReadData	32	static
+/home/bxs/Downloads/Dynomite/Core/Src/main.c:953:6:LCD_Delay	0	static
+/home/bxs/Downloads/Dynomite/Core/Src/main.c:986:6:HAL_TIM_PeriodElapsedCallback	0	static
+/home/bxs/Downloads/Dynomite/Core/Src/main.c:1004:6:Error_Handler	0	static
