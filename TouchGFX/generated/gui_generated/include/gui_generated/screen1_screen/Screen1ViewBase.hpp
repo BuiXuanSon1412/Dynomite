@@ -18,16 +18,11 @@ public:
     Screen1ViewBase();
     virtual ~Screen1ViewBase();
     virtual void setupScreen();
-    virtual void handleTickEvent();
 
     /*
      * Virtual Action Handlers
      */
     virtual void onPlayButtonClicked()
-    {
-        // Override and implement this function in Screen1
-    }
-    virtual void onTickEvent()
     {
         // Override and implement this function in Screen1
     }

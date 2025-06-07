@@ -86,17 +86,6 @@
               "Type": "ActionCustom",
               "FunctionName": "onPlayButtonClicked"
             }
-          },
-          {
-            "InteractionName": "Interaction2",
-            "Trigger": {
-              "Type": "TriggerOnEveryTick",
-              "TickCount": 1
-            },
-            "Action": {
-              "Type": "ActionCustom",
-              "FunctionName": "onTickEvent"
-            }
           }
         ]
       }
