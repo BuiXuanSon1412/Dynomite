@@ -7,8 +7,8 @@
 #include <cstring>
 #include <vector>
 
-extern uint16_t joystickX, joystickY;
-extern uint16_t prevJoystickX, prevJoystickY;
+extern uint16_t controllerX, controllerY;
+extern uint16_t prevControllerX, prevControllerY;
 extern uint16_t currentScore;
 extern uint16_t highScore;
 
@@ -146,18 +146,18 @@ void Screen1View::initializeShootingEgg() {
 void Screen1View::updateShootingEgg() {
 	switch (shootingEggState) {
 	case IDLE:
-		if (joystickY <= 129 && joystickY >= 126
-			&& joystickX <= 129 && joystickX >= 126) return;
+		if (controllerY <= 135 && controllerY >= 120
+			&& controllerX <= 135 && controllerX >= 120) return;
 		else {
 			shootingEggState = READY;
 		}
 		break;
 	case READY:
-		if (joystickY <= 129 && joystickY >= 126
-				&& joystickX <= 129 && joystickX >= 126) {
+		if (controllerY <= 135 && controllerY >= 120
+				&& controllerX <= 135 && controllerX >= 120) {
 			shootingEggState = AIRBORNE;
-			int dx = prevJoystickX - 127.5f;
-			int dy = prevJoystickY - 127.5f;
+			float dx = prevControllerX - 127.5f;
+			float dy = prevControllerY - 127.5f;
 			dShootingEggX = -dx / sqrt(dx * dx + dy * dy);
 			dShootingEggY = -dy / sqrt(dx * dx + dy * dy);
 		}
@@ -166,11 +166,6 @@ void Screen1View::updateShootingEgg() {
 		shootingEggX += dShootingEggX;
 		shootingEggY += dShootingEggY;
 		break;
-	case COLLIDED:
-		shootingEggState = IDLE;
-		shootingEgg.setBitmap(nextShootingEgg.getBitmap());
-		shootingEggX = 107;
-		shootingEggY = 280;
 	default:
 		break;
 	}
@@ -378,6 +373,7 @@ void Screen1View::updateEggBatchAfterCollision(Index shootingEggIndex) {
 
 void Screen1View::updateShootingEggAfterCollision() {
 	shootingEgg.setBitmap(nextShootingEgg.getBitmap());
+	shootingEggState = IDLE;
 	shootingEggX = 107;
 	shootingEggY = 280;
 }

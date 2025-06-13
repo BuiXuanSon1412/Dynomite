@@ -20,7 +20,6 @@ enum EggState {
 	IDLE,
 	READY,
 	AIRBORNE,
-	COLLIDED
 };
 struct Index {
 	int rowIndex, colIndex;

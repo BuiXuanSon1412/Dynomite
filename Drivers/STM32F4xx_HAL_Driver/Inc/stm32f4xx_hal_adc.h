@@ -254,7 +254,7 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< pointer to 
   * @{
   */
 #define HAL_ADC_ERROR_NONE        0x00U   /*!< No error                                              */
-#define HAL_ADC_ERROR_INTERNAL    0x01U   /*!< ADC IP internal error: if problem of clocking,
+#define HAL_ADC_ERROR_INTERNAL    0x01U   /*!< ADC IP internal error: if problem of clocking, 
                                                enable/disable, erroneous state                       */
 #define HAL_ADC_ERROR_OVR         0x02U   /*!< Overrun error                                         */
 #define HAL_ADC_ERROR_DMA         0x04U   /*!< DMA transfer error                                    */
