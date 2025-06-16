@@ -10,20 +10,36 @@
 #define NUM_COLS 9
 #define EGG_WIDTH 26
 #define EGG_HEIGHT 29
+#define SCREEN_WIDTH 240
 #define PADDING 3
+#define MAX_LEN 90
 
 struct Vec2 {
 	float x, y;
 };
 
+struct Index {
+	int rowIndex, colIndex;
+};
+
+class IndexQueue {
+private:
+	Index q[MAX_LEN];
+	int head, tail;
+public:
+	IndexQueue();
+	Index front();
+	bool pop();
+	bool push(Index index);
+	bool empty();
+	bool full();
+};
 enum EggState {
 	IDLE,
 	READY,
 	AIRBORNE,
 };
-struct Index {
-	int rowIndex, colIndex;
-};
+
 class Screen1View : public Screen1ViewBase
 {
 public:
@@ -37,9 +53,7 @@ public:
 protected:
     // varibles to control game flow
     const int framePerSecond = 30;
-    const int step = 1;
-    int framePerEggBatchUpdate;			// smaller -> harder
-    int frameCountForEggBatchUpdate;
+    float dEggBatchY;
     uint32_t lastUpdateTickCount;
 
     // seed for random generator
@@ -48,25 +62,29 @@ protected:
     // variables to manage the batch of eggs
     touchgfx::Image eggBatch[NUM_ROWS][NUM_COLS];
     bool eggBatchState[NUM_ROWS][NUM_COLS];
-    int eggBatchY[NUM_ROWS];
+    uint16_t eggBatchBitmapID[NUM_ROWS][NUM_COLS];
+    float eggBatchY[NUM_ROWS];
     int startRowIndex;
 
     // variable to manage the shooting egg and the next shooting egg
     touchgfx::Image shootingEgg, nextShootingEgg;
     EggState shootingEggState;
-
+    uint16_t shootingEggBitmapID, nextShootingEggBitmapID;
     float shootingEggX, shootingEggY;
-    float dShootingEggX, dShootingEggY;
+    float dShootingEggX, dShootingEggY, dShootingEgg;
+
+
     // array of eggs
-    const touchgfx::Bitmap eggBitmaps[6] = {
-    		touchgfx::Bitmap(BITMAP_BLUE_EGG_ID),
-			touchgfx::Bitmap(BITMAP_GREEN_EGG_ID),
-			touchgfx::Bitmap(BITMAP_GREENRED_EGG_ID),
-			touchgfx::Bitmap(BITMAP_GREY_EGG_ID),
-			touchgfx::Bitmap(BITMAP_ORANGE_EGG_ID),
-			touchgfx::Bitmap(BITMAP_WHITE_EGG_ID),
+
+    const uint16_t eggBitmapID[6] = {
+    		BITMAP_BLUE_EGG_ID,
+			BITMAP_GREEN_EGG_ID,
+			BITMAP_GREENRED_EGG_ID,
+			BITMAP_GREY_EGG_ID,
+			BITMAP_ORANGE_EGG_ID,
+			BITMAP_WHITE_EGG_ID
     };
-    int eggBitmapIndexRange;
+    int eggBitmapIDRange;
 
     // step to reach neighbors of odd-indexed row egg and even-indexed row egg
     const int stepsForEvenRowIndex[6][2] = {{0, -1}, {0, 1}, {-1, 0}, {-1, 1}, {1, 0}, {1, 1}};
@@ -95,7 +113,7 @@ private:
     void updateShootingEggAfterCollision();
     void updateNextShootingEggAfterCollision();
 
-    touchgfx::Bitmap generateRandomEggBitmap();
+    uint16_t generateRandomEggBitmapID();
     uint32_t lcd_rand();
 };
 
