@@ -3,6 +3,7 @@
     "Screens": [
       {
         "Name": "Screen1",
+        "CanvasBufferSize": 3600,
         "Components": [
           {
             "Type": "Image",
@@ -33,46 +34,159 @@
             "RelativeFilename": "background4.png"
           },
           {
-            "Type": "FlexButton",
-            "Name": "playButton",
-            "X": 90,
-            "Y": 200,
-            "Width": 60,
-            "Height": 60,
-            "ButtonTrigger": {
-              "Type": "ClickButtonTrigger"
+            "Type": "Line",
+            "Name": "limitLine",
+            "Width": 240,
+            "Height": 320,
+            "Color": {
+              "Red": 255
             },
-            "ButtonStyles": [
+            "Alpha": 127,
+            "StartY": 270.0,
+            "EndX": 240.0,
+            "EndY": 270.0,
+            "LineWidth": 2.0,
+            "LineEndingStyle": "Round"
+          },
+          {
+            "Type": "Line",
+            "Name": "shootingLine",
+            "Width": 240,
+            "Height": 320,
+            "Color": {
+              "Red": 240,
+              "Green": 188
+            },
+            "StartX": 120.0,
+            "StartY": 295.0,
+            "EndY": 45.0,
+            "LineWidth": 2.0,
+            "LineEndingStyle": "Round"
+          },
+          {
+            "Type": "TextArea",
+            "Name": "realtimeScoreTextArea",
+            "X": 209,
+            "Y": 304,
+            "Width": 25,
+            "Height": 10,
+            "TextId": "__SingleUse_5N03",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 235,
+              "Green": 188
+            },
+            "AutoSize": true,
+            "Wildcard1": {}
+          },
+          {
+            "Type": "Container",
+            "Name": "scoreContainer",
+            "X": 31,
+            "Y": 35,
+            "Width": 178,
+            "Height": 229,
+            "Components": [
               {
-                "Type": "ImageButtonStyle",
-                "ImageReleased": "Default.png",
-                "ImagePressed": "Hover.png"
+                "Type": "BoxWithBorder",
+                "Name": "scoreContainerBackgroundBoxWithBorder",
+                "Width": 178,
+                "Height": 229,
+                "Color": {
+                  "Red": 178,
+                  "Green": 163,
+                  "Blue": 105
+                },
+                "BorderColor": {
+                  "Red": 140,
+                  "Green": 108,
+                  "Blue": 69
+                },
+                "BorderSize": 6
+              },
+              {
+                "Type": "TextArea",
+                "Name": "highScoreLabelTextArea",
+                "X": 23,
+                "Y": 78,
+                "Width": 132,
+                "Height": 20,
+                "TextId": "__SingleUse_9EZE",
+                "TextRotation": "0",
+                "Color": {
+                  "Red": 181,
+                  "Green": 45,
+                  "Blue": 45
+                },
+                "AutoSize": true
+              },
+              {
+                "Type": "TextArea",
+                "Name": "currentScoreTextArea",
+                "X": 46,
+                "Y": 44,
+                "Width": 86,
+                "Height": 20,
+                "TextId": "__SingleUse_WP1F",
+                "TextRotation": "0",
+                "Color": {
+                  "Red": 49,
+                  "Green": 196
+                },
+                "AutoSize": true,
+                "Wildcard1": {},
+                "WideTextAction": 4
+              },
+              {
+                "Type": "TextArea",
+                "Name": "highScoreTextArea",
+                "X": 46,
+                "Y": 105,
+                "Width": 86,
+                "Height": 20,
+                "TextId": "__SingleUse_9NVH",
+                "TextRotation": "0",
+                "Color": {
+                  "Red": 207
+                },
+                "AutoSize": true,
+                "Wildcard1": {}
+              },
+              {
+                "Type": "TextArea",
+                "Name": "currentScoreLabelTextArea",
+                "X": 54,
+                "Y": 17,
+                "Width": 71,
+                "Height": 20,
+                "TextId": "__SingleUse_YMOI",
+                "TextRotation": "0",
+                "Color": {
+                  "Red": 10,
+                  "Green": 138,
+                  "Blue": 10
+                },
+                "AutoSize": true
+              },
+              {
+                "Type": "FlexButton",
+                "Name": "playButton",
+                "X": 59,
+                "Y": 143,
+                "Width": 60,
+                "Height": 60,
+                "ButtonTrigger": {
+                  "Type": "ClickButtonTrigger"
+                },
+                "ButtonStyles": [
+                  {
+                    "Type": "ImageButtonStyle",
+                    "ImageReleased": "Default.png",
+                    "ImagePressed": "Hover.png"
+                  }
+                ]
               }
             ]
-          },
-          {
-            "Type": "TextArea",
-            "Name": "currentScoreTextArea",
-            "X": 74,
-            "Y": 106,
-            "Width": 86,
-            "Height": 20,
-            "TextId": "__SingleUse_WP1F",
-            "TextRotation": "0",
-            "AutoSize": true,
-            "Wildcard1": {}
-          },
-          {
-            "Type": "TextArea",
-            "Name": "highScoreTextArea",
-            "X": 74,
-            "Y": 140,
-            "Width": 86,
-            "Height": 20,
-            "TextId": "__SingleUse_9NVH",
-            "TextRotation": "0",
-            "AutoSize": true,
-            "Wildcard1": {}
           }
         ],
         "Interactions": [

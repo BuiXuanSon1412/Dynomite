@@ -54,6 +54,7 @@ protected:
     // varibles to control game flow
     const int framePerSecond = 30;
     float dEggBatchY;
+    bool gameState;
     uint32_t lastUpdateTickCount;
 
     // seed for random generator

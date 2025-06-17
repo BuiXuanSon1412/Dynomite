@@ -15,7 +15,7 @@ extern uint16_t highScore;
 Screen1View::Screen1View()
 {
 	startRowIndex = 4;
-
+	gameState = false;
 	dEggBatchY = 0.03;
 
 	eggBitmapIDRange = 3;
@@ -30,15 +30,6 @@ Screen1View::Screen1View()
 void Screen1View::setupScreen()
 {
     Screen1ViewBase::setupScreen();
-    initializeEggBatch();
-    //renderEggBatch();
-
-    initializeShootingEgg();
-    initializeNextShootingEgg();
-
-    playButton.setVisible(false);
-
-    lastUpdateTickCount = osKernelGetTickCount();
 }
 
 void Screen1View::tearDownScreen()
@@ -47,7 +38,13 @@ void Screen1View::tearDownScreen()
 }
 
 void Screen1View::onPlayButtonClicked() {
-
+	scoreContainer.setVisible(false);
+	scoreContainer.invalidate();
+	gameState = true;
+	initializeEggBatch();
+	initializeShootingEgg();
+	initializeNextShootingEgg();
+	lastUpdateTickCount = osKernelGetTickCount();
 }
 
 void Screen1View::handleTickEvent() {
@@ -55,11 +52,15 @@ void Screen1View::handleTickEvent() {
 	uint32_t tickPerFrame = osKernelGetTickFreq() / framePerSecond;
 
 	if (osKernelGetTickCount() - lastUpdateTickCount > tickPerFrame) {
-		if (eggBatchY[startRowIndex] + 0.5 * EGG_HEIGHT > limitY) {
-			//playButton.setVisible(true);
+		if (gameState == false) {
+			scoreContainer.setVisible(true);
+			scoreContainer.invalidate();
 			return;
 		}
-
+		if (eggBatchY[startRowIndex] + 0.5 * EGG_HEIGHT > limitY) {
+			gameState = false;
+			return;
+		}
 		updateEggBatch();
 		updateShootingEgg();
 		//updateNextShootingEgg();

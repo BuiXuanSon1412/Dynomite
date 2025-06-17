@@ -9,8 +9,13 @@
 #include <gui/screen1_screen/Screen1Presenter.hpp>
 #include <touchgfx/widgets/Box.hpp>
 #include <touchgfx/widgets/Image.hpp>
-#include <touchgfx/containers/buttons/Buttons.hpp>
+#include <touchgfx/widgets/canvas/Line.hpp>
+#include <touchgfx/widgets/canvas/PainterRGB565.hpp>
 #include <touchgfx/widgets/TextAreaWithWildcard.hpp>
+#include <touchgfx/containers/Container.hpp>
+#include <touchgfx/widgets/BoxWithBorder.hpp>
+#include <touchgfx/widgets/TextArea.hpp>
+#include <touchgfx/containers/buttons/Buttons.hpp>
 
 class Screen1ViewBase : public touchgfx::View<Screen1Presenter>
 {
@@ -40,11 +45,26 @@ protected:
     touchgfx::Image backgroundImage2;
     touchgfx::Image backgroundImage3;
     touchgfx::Image backgroundImage4;
-    touchgfx::ImageButtonStyle< touchgfx::ClickButtonTrigger >  playButton;
+    touchgfx::Line limitLine;
+    touchgfx::PainterRGB565 limitLinePainter;
+    touchgfx::Line shootingLine;
+    touchgfx::PainterRGB565 shootingLinePainter;
+    touchgfx::TextAreaWithOneWildcard realtimeScoreTextArea;
+    touchgfx::Container scoreContainer;
+    touchgfx::BoxWithBorder scoreContainerBackgroundBoxWithBorder;
+    touchgfx::TextArea highScoreLabelTextArea;
     touchgfx::TextAreaWithOneWildcard currentScoreTextArea;
     touchgfx::TextAreaWithOneWildcard highScoreTextArea;
+    touchgfx::TextArea currentScoreLabelTextArea;
+    touchgfx::ImageButtonStyle< touchgfx::ClickButtonTrigger >  playButton;
 
 private:
+
+    /*
+     * Canvas Buffer Size
+     */
+    static const uint32_t CANVAS_BUFFER_SIZE = 3600;
+    uint8_t canvasBuffer[CANVAS_BUFFER_SIZE];
 
     /*
      * Callback Declarations
