@@ -12,36 +12,38 @@
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/Drawable.hpp:703:18:virtual void touchgfx::Drawable::setupDrawChain(const touchgfx::Rect&, touchgfx::Drawable**)	0	static
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/Screen.hpp:104:18:virtual void touchgfx::Screen::afterTransition()	0	static
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/Screen.hpp:154:18:virtual void touchgfx::Screen::handleKeyEvent(uint8_t)	0	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:35:6:virtual void Screen1View::tearDownScreen()	0	static
-../../TouchGFX/gui/include/gui/screen1_screen/Screen1View.hpp:47:13:Screen1View::~Screen1View()	16	static
-../../TouchGFX/gui/include/gui/screen1_screen/Screen1View.hpp:47:13:virtual Screen1View::~Screen1View()	8	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:51:6:virtual void Screen1View::tearDownScreen()	0	static
+../../TouchGFX/gui/include/gui/screen1_screen/Screen1View.hpp:53:13:Screen1View::~Screen1View()	16	static
+../../TouchGFX/gui/include/gui/screen1_screen/Screen1View.hpp:53:13:virtual Screen1View::~Screen1View()	8	static
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/Drawable.hpp:121:18:virtual void touchgfx::Drawable::invalidateContent() const	0	static
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/widgets/Widget.hpp:45:18:virtual void touchgfx::Widget::getLastChild(int16_t, int16_t, touchgfx::Drawable**)	0	static
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/Drawable.hpp:343:10:void touchgfx::Drawable::setXY(int16_t, int16_t)	16	static
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/widgets/Image.hpp:50:5:touchgfx::Image::Image(const touchgfx::Bitmap&)	8	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:15:1:Screen1View::Screen1View()	40	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:120:6:void Screen1View::renderEggBatch()	40	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:133:6:void Screen1View::updateEggBatch()	0	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:147:6:void Screen1View::updateShootingEgg()	48	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:179:6:void Screen1View::renderShootingEgg()	24	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:194:6:void Screen1View::renderNextShootingEgg()	0	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:280:7:float Screen1View::sign(Vec2, Vec2, Vec2)	24	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:284:6:bool Screen1View::checkCollisionArea(Vec2, Vec2, Vec2, Vec2)	32	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:198:7:Index Screen1View::detectCollisionBetweenShootingEggAndEggBatch()	104	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:369:6:void Screen1View::updateShootingEggAfterCollision()	16	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:380:10:uint32_t Screen1View::lcd_rand()	0	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:384:10:uint16_t Screen1View::generateRandomEggBitmapID()	8	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:376:6:void Screen1View::updateNextShootingEggAfterCollision()	16	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:390:1:IndexQueue::IndexQueue()	0	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:395:7:Index IndexQueue::front()	0	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:399:6:bool IndexQueue::pop()	0	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:415:6:bool IndexQueue::empty()	0	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:418:6:bool IndexQueue::full()	0	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:407:6:bool IndexQueue::push(Index)	24	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:292:6:void Screen1View::updateEggBatchAfterCollision(Index)	1664	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:50:6:virtual void Screen1View::handleTickEvent()	32	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:30:6:virtual void Screen1View::setupScreen()	0	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:87:6:void Screen1View::initializeEggBatch()	64	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:141:6:void Screen1View::initializeShootingEgg()	32	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:184:6:void Screen1View::initializeNextShootingEgg()	24	static
-C:/Users/theta/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:40:6:virtual void Screen1View::onPlayButtonClicked()	16	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:14:1:Screen1View::Screen1View()	40	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:142:6:void Screen1View::renderEggBatch()	56	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:154:6:void Screen1View::updateEggBatch()	0	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:173:6:void Screen1View::updateShootingEgg()	32	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:236:6:void Screen1View::renderShootingEgg()	32	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:251:6:void Screen1View::renderNextShootingEgg()	16	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:262:6:void Screen1View::updateShootingLine()	0	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:279:7:Index Screen1View::detectCollisionBetweenShootingEggAndEggBatch()	136	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:386:7:float Screen1View::sign(Vec2, Vec2, Vec2)	24	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:390:6:bool Screen1View::checkCollisionArea(Vec2, Vec2, Vec2, Vec2)	32	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:510:6:void Screen1View::updateShootingEggAfterCollision()	0	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:521:10:uint32_t Screen1View::lcd_rand()	0	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:525:10:uint16_t Screen1View::generateRandomEggBitmapID()	8	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:162:6:void Screen1View::initializeShootingEgg()	24	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:242:6:void Screen1View::initializeNextShootingEgg()	16	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:517:6:void Screen1View::updateNextShootingEggAfterCollision()	16	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:111:6:void Screen1View::initializeEggBatch()	72	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:56:6:virtual void Screen1View::onPlayButtonClicked()	16	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:530:7:Index IndexQueue::front()	0	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:534:6:bool IndexQueue::pop()	0	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:550:6:bool IndexQueue::empty()	0	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:553:6:bool IndexQueue::full()	0	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:542:6:bool IndexQueue::push(Index)	24	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:398:6:void Screen1View::updateEggBatchAfterCollision(Index)	1680	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:256:6:void Screen1View::initializeShootingLine()	16	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:269:6:void Screen1View::renderShootingLine()	0	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:73:6:virtual void Screen1View::handleTickEvent()	24	static
+/home/bxs/Downloads/Dynomite/TouchGFX/gui/src/screen1_screen/Screen1View.cpp:26:6:virtual void Screen1View::setupScreen()	40	static

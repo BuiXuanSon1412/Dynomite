@@ -3,15 +3,22 @@
 
 #include <gui_generated/screen1_screen/Screen1ViewBase.hpp>
 #include <gui/screen1_screen/Screen1Presenter.hpp>
-
+//#include <touchgfx/widgets/canvas/CanvasLine.hpp>
 #include <images/BitmapDatabase.hpp>
 
 #define NUM_ROWS 10
 #define NUM_COLS 9
+
 #define EGG_WIDTH 26
 #define EGG_HEIGHT 29
+#define EGG_BLANK_SIZE 8
+
 #define SCREEN_WIDTH 240
 #define PADDING 3
+
+#define LIMIT_Y 270
+#define BASE_Y 295
+
 #define MAX_LEN 90
 
 struct Vec2 {
@@ -25,9 +32,8 @@ struct Index {
 class IndexQueue {
 private:
 	Index q[MAX_LEN];
-	int head, tail;
+	int head = 0, tail = 0;
 public:
-	IndexQueue();
 	Index front();
 	bool pop();
 	bool push(Index index);
@@ -64,6 +70,7 @@ protected:
     touchgfx::Image eggBatch[NUM_ROWS][NUM_COLS];
     bool eggBatchState[NUM_ROWS][NUM_COLS];
     uint16_t eggBatchBitmapID[NUM_ROWS][NUM_COLS];
+    int eggBatchDegree[NUM_ROWS][NUM_COLS];
     float eggBatchY[NUM_ROWS];
     int startRowIndex;
 
@@ -73,7 +80,8 @@ protected:
     uint16_t shootingEggBitmapID, nextShootingEggBitmapID;
     float shootingEggX, shootingEggY;
     float dShootingEggX, dShootingEggY, dShootingEgg;
-
+    int leftToRight;
+    int shootingLineEndX, shootingLineEndY;
 
     // array of eggs
 
@@ -91,8 +99,8 @@ protected:
     const int stepsForEvenRowIndex[6][2] = {{0, -1}, {0, 1}, {-1, 0}, {-1, 1}, {1, 0}, {1, 1}};
     const int stepsForOddRowIndex[6][2] = {{0, -1}, {0, 1}, {-1, -1}, {-1, 0}, {1, -1}, {1, 0}};
 
-    // limit line
-    const int limitY = 250;
+    //const int steps[2][6][2] = {{{0, -1}, {0, 1}, {-1, 0}, {-1, 1}, {1, 0}, {1, 1}},
+    //		{{0, -1}, {0, 1}, {-1, -1}, {-1, 0}, {1, -1}, {1, 0}}};
 private:
     void initializeEggBatch();
     void updateEggBatch();
@@ -105,6 +113,10 @@ private:
     void initializeNextShootingEgg();
     void updateNextShootingEgg();
     void renderNextShootingEgg();
+
+    void initializeShootingLine();
+    void updateShootingLine();
+    void renderShootingLine();
 
     Index detectCollisionBetweenShootingEggAndEggBatch();
     bool checkCollisionArea(Vec2 p, Vec2 v1, Vec2 v2, Vec2 v3);

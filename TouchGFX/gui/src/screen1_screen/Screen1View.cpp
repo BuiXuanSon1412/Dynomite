@@ -2,10 +2,9 @@
 
 #include <cmsis_os.h>
 #include <cmath>
-#include <queue>
 #include <utility>
 #include <cstring>
-#include <vector>
+#include <queue>
 
 extern uint16_t controllerX, controllerY;
 extern uint16_t prevControllerX, prevControllerY;
@@ -14,22 +13,39 @@ extern uint16_t highScore;
 
 Screen1View::Screen1View()
 {
-	startRowIndex = 4;
+	// prepare for game flow
 	gameState = false;
-	dEggBatchY = 0.03;
 
+	// from the start, there will be 3 types of eggs
 	eggBitmapIDRange = 3;
-	seed = 123456789;
 
-	shootingEggX = 107;
-	shootingEggY = 280;
-	dShootingEgg = 2;
-	shootingEggState = IDLE;
+	// generate seed for random generator
+	seed = 1;
 }
 
 void Screen1View::setupScreen()
 {
     Screen1ViewBase::setupScreen();
+
+    remove(scoreContainer);
+
+    add(shootingEgg);
+    shootingEgg.setVisible(false);
+    shootingEgg.invalidate();
+
+    add(nextShootingEgg);
+    nextShootingEgg.setVisible(false);
+    nextShootingEgg.invalidate();
+    for (int i = 0; i < NUM_ROWS; i++) {
+        for (int j = 0; j < NUM_COLS; j++) {
+      		add(eggBatch[i][j]);
+       	}
+    }
+
+    shootingLine.setVisible(false);
+    shootingLine.invalidate();
+
+    add(scoreContainer);
 }
 
 void Screen1View::tearDownScreen()
@@ -40,10 +56,17 @@ void Screen1View::tearDownScreen()
 void Screen1View::onPlayButtonClicked() {
 	scoreContainer.setVisible(false);
 	scoreContainer.invalidate();
+
 	gameState = true;
+	startRowIndex = 4;
+	currentScore = 0;
+	dEggBatchY = 0.03;
+
+
 	initializeEggBatch();
 	initializeShootingEgg();
 	initializeNextShootingEgg();
+
 	lastUpdateTickCount = osKernelGetTickCount();
 }
 
@@ -57,13 +80,13 @@ void Screen1View::handleTickEvent() {
 			scoreContainer.invalidate();
 			return;
 		}
-		if (eggBatchY[startRowIndex] + 0.5 * EGG_HEIGHT > limitY) {
+		if (eggBatchY[startRowIndex] + 0.5 * EGG_HEIGHT > LIMIT_Y) {
 			gameState = false;
 			return;
 		}
 		updateEggBatch();
 		updateShootingEgg();
-		//updateNextShootingEgg();
+		updateShootingLine();
 
 		if (shootingEggState == AIRBORNE) {
 			Index shootingEggIndex = detectCollisionBetweenShootingEggAndEggBatch();
@@ -78,7 +101,8 @@ void Screen1View::handleTickEvent() {
 		renderEggBatch();
 		renderShootingEgg();
 		renderNextShootingEgg();
-
+		renderShootingLine();
+		invalidate();
 		lastUpdateTickCount = osKernelGetTickCount();
 	}
 
@@ -86,17 +110,14 @@ void Screen1View::handleTickEvent() {
 
 void Screen1View::initializeEggBatch() {
 	int i = startRowIndex;
-	int lastY = -1;
+	float lastY = BASE_Y;
 	do {
 		// Y coordinate
-		if (lastY == -1) eggBatchY[i] = startRowIndex * EGG_HEIGHT;
+		if (lastY == BASE_Y) eggBatchY[i] = startRowIndex * EGG_HEIGHT + 0.5 * EGG_HEIGHT;
 		else eggBatchY[i] = lastY - EGG_HEIGHT;
 		lastY = eggBatchY[i];
 
-		// set XY, bitmap and state
-		// adding to View
 		int numOfCols, padding;
-
 		if (i % 2 == 0) {
 			padding = PADDING + EGG_WIDTH * 0.5;
 			numOfCols = NUM_COLS - 1;
@@ -105,12 +126,13 @@ void Screen1View::initializeEggBatch() {
 			padding = PADDING;
 			numOfCols = NUM_COLS;
 		}
+
 		for (int j = 0; j < numOfCols; j++) {
 			eggBatchBitmapID[i][j] = generateRandomEggBitmapID();
 			eggBatch[i][j].setBitmap(touchgfx::Bitmap(eggBatchBitmapID[i][j]));
-			eggBatch[i][j].setXY(padding + EGG_WIDTH * j, (int)eggBatchY[i]);
+			eggBatch[i][j].moveTo(std::round(padding + EGG_WIDTH * j), std::round(eggBatchY[i] - 0.5 * EGG_HEIGHT));
 			eggBatchState[i][j] = true;
-			add(eggBatch[i][j]);
+			eggBatch[i][j].setVisible(eggBatchState[i][j]);
 		}
 		i = i-1;
 		if (i < 0) i += NUM_ROWS;
@@ -119,13 +141,12 @@ void Screen1View::initializeEggBatch() {
 
 void Screen1View::renderEggBatch() {
 	for (int i = 0; i < NUM_ROWS; i++) {
-		//if (eggBatchY[i] + 0.5 * EGG_HEIGHT <= 0) break;
 		int numOfCols = (i%2 == 0 ? NUM_COLS-1 : NUM_COLS);
 		for (int j = 0; j < numOfCols; j++) {
-			if (eggBatchState[i][j]) {
-				eggBatch[i][j].moveTo(eggBatch[i][j].getX(), (int)eggBatchY[i]);
-				eggBatch[i][j].invalidate();
-			}
+			eggBatch[i][j].setBitmap(touchgfx::Bitmap(eggBatchBitmapID[i][j]));
+			eggBatch[i][j].moveTo(eggBatch[i][j].getX(), std::round(eggBatchY[i] - 0.5 * EGG_HEIGHT));
+			eggBatch[i][j].setVisible(eggBatchState[i][j]);
+			//eggBatch[i][j].invalidate();
 		}
 	}
 }
@@ -139,27 +160,63 @@ void Screen1View::updateEggBatch() {
 
 
 void Screen1View::initializeShootingEgg() {
+	shootingEggX = SCREEN_WIDTH * 0.5;
+	shootingEggY = BASE_Y;
+	dShootingEgg = 2;
+	shootingEggState = IDLE;
+
 	shootingEggBitmapID = generateRandomEggBitmapID();
 	shootingEgg.setBitmap(touchgfx::Bitmap(shootingEggBitmapID));
-	shootingEgg.setXY((int)std::round(shootingEggX), (int)std::round(shootingEggY));
-	add(shootingEgg);
+	shootingEgg.setXY(std::round(shootingEggX - 0.5 * EGG_WIDTH), (int)std::round(BASE_Y - 0.5 * EGG_HEIGHT));
+	shootingEgg.setVisible(true);
 }
 void Screen1View::updateShootingEgg() {
+	//float dx, dy;
+	float dx = controllerX - 127.5f;
+	float dy = controllerY - 127.5f;
+	float d = sqrt(dx * dx + dy * dy);
+
 	switch (shootingEggState) {
 	case IDLE:
-		if (controllerY <= 135) return;
-		else {
+		if (dy > 5) {
 			shootingEggState = READY;
+		}
+		else {
+			dShootingEggX = 0;
+			dShootingEggY = 0;
 		}
 		break;
 	case READY:
-		if (controllerY <= 135 && controllerY >= 120
-				&& controllerX <= 135 && controllerX >= 120) {
+		if (abs(dx) <= 5 && abs(dy) <= 5) {
+			dx = prevControllerX - 127.5f;
+			dy = prevControllerY - 127.5f;
+
+			if (abs(dy / dx) < (BASE_Y - LIMIT_Y) / (0.5 * SCREEN_WIDTH)) {
+				dx = (dx < 0 ? -0.5 * SCREEN_WIDTH : 0.5 * SCREEN_WIDTH);
+				dy = BASE_Y - LIMIT_Y;
+			}
+
+			d = sqrt(dx * dx + dy * dy);
+
+			dShootingEggX = -dx / d;
+			dShootingEggY = -dy / d;
+
+			shootingLineEndX = (int) (0.5 * SCREEN_WIDTH + dShootingEggX * 150);
+			shootingLineEndY = (int) (BASE_Y + dShootingEggY * 150);
+
 			shootingEggState = AIRBORNE;
-			float dx = prevControllerX - 127.5f;
-			float dy = prevControllerY - 127.5f;
-			dShootingEggX = -dx / sqrt(dx * dx + dy * dy) * dShootingEgg;
-			dShootingEggY = -dy / sqrt(dx * dx + dy * dy) * dShootingEgg;
+		}
+		else if (dy > 0) {
+			if (abs(dy / dx) < (BASE_Y - LIMIT_Y) / (0.5 * SCREEN_WIDTH)) {
+				dx = (dx < 0 ? -0.5 * SCREEN_WIDTH : 0.5 * SCREEN_WIDTH);
+				dy = BASE_Y - LIMIT_Y;
+				d = sqrt(dx * dx + dy * dy);
+			}
+			dShootingEggX = -dx / d;
+			dShootingEggY = -dy / d;
+
+			shootingLineEndX = (int) (0.5 * SCREEN_WIDTH + dShootingEggX * 150);
+			shootingLineEndY = (int) (BASE_Y + dShootingEggY * 150);
 		}
 		break;
 	case AIRBORNE:
@@ -167,8 +224,8 @@ void Screen1View::updateShootingEgg() {
 			|| shootingEggX - 0.5 * EGG_WIDTH <= 0) {
 			dShootingEggX = -dShootingEggX;
 		}
-		shootingEggX += dShootingEggX;
-		shootingEggY += dShootingEggY;
+		shootingEggX += dShootingEggX * dShootingEgg;
+		shootingEggY += dShootingEggY * dShootingEgg;
 		break;
 	default:
 		break;
@@ -177,98 +234,147 @@ void Screen1View::updateShootingEgg() {
 }
 
 void Screen1View::renderShootingEgg() {
-	shootingEgg.moveTo((int)std::round(shootingEggX), (int)std::round(shootingEggY));
-	shootingEgg.invalidate();
+	shootingEgg.setBitmap(touchgfx::Bitmap(shootingEggBitmapID));
+	shootingEgg.moveTo((int)std::round(shootingEggX - 0.5 * EGG_WIDTH), std::round(shootingEggY - 0.5 * EGG_HEIGHT));
+	//shootingEgg.invalidate();
 }
 
 void Screen1View::initializeNextShootingEgg() {
 	nextShootingEggBitmapID = generateRandomEggBitmapID();
-	nextShootingEgg.setBitmap(touchgfx::Bitmap(nextShootingEggBitmapID));
-	nextShootingEgg.setXY(10, 280);
-	add(nextShootingEgg);
+	nextShootingEgg.setXY(10, BASE_Y - 0.5 * EGG_HEIGHT);
+	nextShootingEgg.setVisible(true);
 }
 void Screen1View::updateNextShootingEgg() {
 	//sampleEgg.moveTo(sampleEgg.getX(), sampleEgg.getY() + 2);
 }
 
 void Screen1View::renderNextShootingEgg() {
-	nextShootingEgg.invalidate();
+	nextShootingEgg.setBitmap(touchgfx::Bitmap(nextShootingEggBitmapID));
+	//nextShootingEgg.invalidate();
 }
 
+void Screen1View::initializeShootingLine() {
+	shootingLine.setStart((int)(0.5 * SCREEN_WIDTH), BASE_Y);
+	shootingLine.setVisible(false);
+	shootingLine.invalidate();
+}
+
+void Screen1View::updateShootingLine() {
+	if (shootingEggState == READY
+		|| shootingEggState == AIRBORNE) {
+		shootingLine.setEnd(shootingLineEndX, shootingLineEndY);
+	}
+}
+
+void Screen1View::renderShootingLine() {
+	if (shootingEggState == READY || shootingEggState == AIRBORNE) {
+		shootingLine.setVisible(true);
+		shootingLine.invalidate();
+	}
+	else {
+		shootingLine.setVisible(false);
+		shootingLine.invalidate();
+	}
+}
 Index Screen1View::detectCollisionBetweenShootingEggAndEggBatch() {
 	if (shootingEggY - 0.5 * EGG_HEIGHT > eggBatchY[startRowIndex] + 0.5 * EGG_HEIGHT) return {-1, -1};
-	int i = startRowIndex;
 
+	int i = startRowIndex;
 	do {
-		Vec2 p, v1, v2, v3;
-		int numOfCols = (i%2 == 0 ? NUM_COLS-1 : NUM_COLS);
-		//if (eggBatchY[i] + 0.5 * EGG_HEIGHT <= 0) continue;
+		int numOfCols = (i % 2 == 0 ? NUM_COLS-1 : NUM_COLS);
+		int newNumOfCols = (numOfCols == NUM_COLS ? NUM_COLS-1 : NUM_COLS);
+
 		for (int j = 0; j < numOfCols; j++) {
 			if (eggBatchState[i][j]) {
-				// bottom-right of eggBatch[i][j]
-				p = {shootingEggX, shootingEggY - 0.5f * EGG_HEIGHT};
-				v1 = {(float) eggBatch[i][j].getX(), eggBatchY[i]};
-				v2 = {eggBatch[i][j].getX(), eggBatchY[i] + 0.5f * EGG_HEIGHT};
-				v3 = {eggBatch[i][j].getX() + 0.5f * EGG_WIDTH, eggBatchY[i] + 0.5f * EGG_HEIGHT};
-				if (checkCollisionArea(p, v1, v2, v3)){
-					int rowIndex, colIndex;
-					rowIndex = (i+1) % NUM_ROWS;
-					if (i % 2 == 0) colIndex = j+1;
-					else if (j == numOfCols-1) colIndex = j-1;
-					else colIndex = j;
-					return {rowIndex, colIndex};
-				}
-				// right side of eggBatch[i][j]
-				p = {shootingEggX - 0.5f * EGG_WIDTH, shootingEggY - 0.5f * EGG_HEIGHT};
-				v1 = {(float) eggBatch[i][j].getX(), (float) eggBatchY[i]};
-				v2 = {eggBatch[i][j].getX() + 0.5f * EGG_WIDTH, eggBatchY[i] + 0.5f * EGG_HEIGHT};
-				v2 = {eggBatch[i][j].getX() + 0.5f * EGG_WIDTH, eggBatchY[i] - 0.5f * EGG_HEIGHT};
+				float x = eggBatch[i][j].getX() + 0.5 * EGG_WIDTH;
+				float y = eggBatchY[i];
+				if (dShootingEggX <= 0) {
+					if (shootingEggX - 0.5 * EGG_WIDTH > x - 0.5 * EGG_WIDTH
+						&& shootingEggX - 0.5 * EGG_WIDTH < x + 0.5 * EGG_WIDTH) {
+						if (shootingEggY - 0.5 * EGG_HEIGHT > y
+							&& shootingEggY - 0.5 * EGG_HEIGHT < y + 0.5 * EGG_WIDTH) {
+							// bottom-right
+							int rowIndex = (i+1) % NUM_ROWS;
+							int colIndex = (i % 2 == 0 ? j+1 : j);
+							if (colIndex < newNumOfCols
+									&& (eggBatchState[rowIndex][colIndex] == false
+									|| i == startRowIndex)
+								) return {rowIndex, colIndex};
+						}
+						else if (shootingEggY - 0.5 * EGG_HEIGHT > y - 0.5 * EGG_WIDTH
+								&& shootingEggY - 0.5 * EGG_HEIGHT < y) {
+							// right
+							int rowIndex = i;
+							int colIndex = j+1;
+							if (colIndex < numOfCols
+								&& eggBatchState[rowIndex][colIndex] == false) return {rowIndex, colIndex};
+						}
+						else if (shootingEggY - 0.5 * EGG_HEIGHT < y - 0.5 * EGG_WIDTH
+								&& shootingEggY - 0.5 * EGG_HEIGHT > y - 1.5 * EGG_WIDTH) {
+								// top-right
+								int rowIndex = (i-1 < 0 ? i-1+NUM_ROWS : i-1);
+								int colIndex = (i % 2 == 0 ? j+1 : j);
+								if (colIndex < newNumOfCols
+									&& eggBatchState[rowIndex][colIndex] == false) return {rowIndex, colIndex};
 
-				if (checkCollisionArea(p, v1, v2, v3)) {
-					int rowIndex, colIndex;
-
-					if (j == numOfCols-1) {
-						rowIndex = (i+1) % NUM_ROWS;
-						if (i % 2 == 0) colIndex = j+1;
-						else colIndex = j-1;
+						}
 					}
-					else {
-						rowIndex = i;
-						colIndex = j+1;
+					else if (shootingEggX + 0.5 * EGG_WIDTH > x - 0.5 * EGG_WIDTH
+							&& shootingEggX + 0.5 * EGG_WIDTH < x + 0.5 * EGG_WIDTH) {
+						if (shootingEggY - 0.5 * EGG_HEIGHT < y + 0.5 * EGG_HEIGHT) {
+							// bottom-left
+							int rowIndex = (i+1) % NUM_ROWS;
+							int colIndex = (i % 2 == 0 ? j : j-1);
+							if (colIndex >= 0
+								&& (eggBatchState[rowIndex][colIndex] == false
+									|| i == startRowIndex)
+								) return {rowIndex, colIndex};
+						}
 					}
-					return {rowIndex, colIndex};
 				}
+				else if (dShootingEggX > 0) {
+					if (shootingEggX + 0.5 * EGG_WIDTH > x - 0.5 * EGG_WIDTH
+						&& shootingEggX + 0.5 * EGG_WIDTH < x + 0.5 * EGG_WIDTH) {
+						if (shootingEggY - 0.5 * EGG_HEIGHT > y
+							&& shootingEggY - 0.5 * EGG_HEIGHT < y + 0.5 * EGG_WIDTH) {
+							// bottom-left
+							int rowIndex = (i+1) % NUM_ROWS;
+							int colIndex = (i % 2 == 0 ? j : j-1);
+							if (colIndex >= 0
+								&& (eggBatchState[rowIndex][colIndex] == false
+									|| i == startRowIndex)
+								) return {rowIndex, colIndex};
+						}
+						else if (shootingEggY - 0.5 * EGG_HEIGHT > y - 0.5 * EGG_WIDTH
+								&& shootingEggY - 0.5 * EGG_HEIGHT < y) {
+							// left
+							int rowIndex = i;
+							int colIndex = j-1;
+							if (colIndex >= 0
+								&& eggBatchState[rowIndex][colIndex] == false) return {rowIndex, colIndex};
+						}
+						else if (shootingEggY - 0.5 * EGG_HEIGHT > y - 1.5 * EGG_WIDTH
+								&& shootingEggY - 0.5 * EGG_HEIGHT < y - 0.5 * EGG_WIDTH) {
+								// top-left
+								int rowIndex = (i-1 < 0 ? i-1+NUM_ROWS : i-1);
+								int colIndex = (i % 2 == 0 ? j : j-1);
+								if (colIndex >= 0
+									&& eggBatchState[rowIndex][colIndex] == false) return {rowIndex, colIndex};
+							}
 
-
-				// bottom-left of eggBatch[i][j]
-				p = {shootingEggX, shootingEggY - 0.5f * EGG_HEIGHT};
-				v1 = {(float) eggBatch[i][j].getX(), eggBatchY[i]};
-				v2 = {eggBatch[i][j].getX(), eggBatchY[i] + 0.5f * EGG_HEIGHT};
-				v3 = {eggBatch[i][j].getX() - 0.5f * EGG_WIDTH, eggBatchY[i] + 0.5f * EGG_HEIGHT};
-				if (checkCollisionArea(p, v1, v2, v3)) {
-					int rowIndex, colIndex;
-					rowIndex = (i+1) % NUM_ROWS;
-					if (i % 2 == 0) colIndex = j;
-					else if (j == 0) colIndex = j;
-					else colIndex = j-1;
-					return {rowIndex, colIndex};
-				}
-
-				// left side of eggBatch[i][j]
-				p = {shootingEggX + 0.5f * EGG_WIDTH, shootingEggY - 0.5f * EGG_HEIGHT};
-				v1 = {(float) eggBatch[i][j].getX(), eggBatchY[i]};
-				v2 = {eggBatch[i][j].getX() - 0.5f * EGG_WIDTH, eggBatchY[i] + 0.5f * EGG_HEIGHT};
-				v2 = {eggBatch[i][j].getX() - 0.5f * EGG_WIDTH, eggBatchY[i] - 0.5f * EGG_HEIGHT};
-				if (checkCollisionArea(p, v1, v2, v3)) {
-					int rowIndex, colIndex;
-					if (j == 0) {
-						rowIndex = (i+1) % NUM_ROWS;
-						colIndex = 0;
-					} else {
-						rowIndex = i;
-						colIndex = j-1;
 					}
-					return {rowIndex, colIndex};
+					else if (shootingEggX - 0.5 * EGG_WIDTH < x + 0.5 * EGG_WIDTH
+							&& shootingEggX - 0.5 * EGG_WIDTH > x - 0.5 * EGG_WIDTH) {
+						if (shootingEggY - 0.5 * EGG_HEIGHT < y + 0.5 * EGG_HEIGHT) {
+							// bottom-right
+							int rowIndex = (i+1) % NUM_ROWS;
+							int colIndex = (i % 2 == 0 ? j+1 : j);
+							if (colIndex < newNumOfCols
+								&& (eggBatchState[rowIndex][colIndex] == false
+									|| i == startRowIndex)
+								) return {rowIndex, colIndex};
+						}
+					}
 				}
 			}
 		}
@@ -294,7 +400,7 @@ void Screen1View::updateEggBatchAfterCollision(Index shootingEggIndex) {
 	int rowIndex = shootingEggIndex.rowIndex;
 	int colIndex = shootingEggIndex.colIndex;
 
-	eggBatch[rowIndex][colIndex].setBitmap(touchgfx::Bitmap(shootingEggBitmapID));
+	eggBatchBitmapID[rowIndex][colIndex] = shootingEggBitmapID;
 	eggBatchState[rowIndex][colIndex] = true;
 
 	// if shootingEgg landed on the new row of eggBatch, update ...
@@ -312,65 +418,100 @@ void Screen1View::updateEggBatchAfterCollision(Index shootingEggIndex) {
 	// detect which eggs of eggBatch drop:
 	// using BFS for simplicity to reach to all eggBatch 's elements with the color of shootingEgg
 
-
-	IndexQueue Q = IndexQueue();
-
 	Index eggIndices[MAX_LEN];
 	int eggCount = 0;
+
 	bool visited[NUM_ROWS][NUM_COLS];
 	memset(visited, 0, sizeof(visited));
+	visited[rowIndex][colIndex] = true;
+	IndexQueue Q;
 	Q.push(shootingEggIndex);
+
+	int steps[6][2];
 
 	while(!Q.empty()) {
 		Index eggIndex = Q.front();
-		eggIndices[eggCount++] = eggIndex;
 		Q.pop();
+		eggIndices[eggCount++] = eggIndex;
 
-		int rowIndex = eggIndex.rowIndex;
-		int colIndex = eggIndex.colIndex;
-		int steps[6][2];
-		if (rowIndex % 2 == 0) {
+		int currentRowIndex = eggIndex.rowIndex;
+		int currentColIndex = eggIndex.colIndex;
+
+		if (currentRowIndex % 2 == 0) {
 			std::memcpy(steps, stepsForEvenRowIndex, sizeof(stepsForEvenRowIndex));
 		}
 		else {
 			std::memcpy(steps, stepsForOddRowIndex, sizeof(stepsForOddRowIndex));
 		}
 		for (int i = 0; i < 6; i++) {
-			int newRowIndex = rowIndex + steps[i][0];
+			int newRowIndex = currentRowIndex + steps[i][0];
 			if (newRowIndex < 0) newRowIndex += NUM_ROWS;
 			else if (newRowIndex >= NUM_ROWS) newRowIndex -= NUM_ROWS;
-			int newColIndex = colIndex + steps[i][1];
+			int newColIndex = currentColIndex + steps[i][1];
 
 			int numOfCols = (newRowIndex % 2 == 0 ? NUM_COLS-1 : NUM_COLS);
 			if (newColIndex >= 0
 				&& newColIndex < numOfCols
+				&& eggBatchY[newRowIndex] + 0.5 * EGG_HEIGHT > 0
 				&& eggBatchState[newRowIndex][newColIndex] == true
 				&& visited[newRowIndex][newColIndex] == false
-				&& eggBatchBitmapID[newRowIndex][newColIndex] == shootingEggBitmapID
-				&& eggBatchY[newRowIndex] + 0.5 * EGG_HEIGHT > 0) {
+				&& eggBatchBitmapID[newRowIndex][newColIndex] == shootingEggBitmapID) {
 				Q.push({newRowIndex, newColIndex});
 				visited[newRowIndex][newColIndex] = true;
 			}
 		}
 	}
-	for (int i = 0; i < eggCount; i++) {
-		Index eggIndex = eggIndices[i];
-		eggBatchState[eggIndex.rowIndex][eggIndex.colIndex] = false;
-	}
+
 	if (eggCount >= 3) {
 		for (int i = 0; i < eggCount; i++) {
-			Index eggIndex = eggIndices[i];
-			eggBatchState[eggIndex.rowIndex][eggIndex.colIndex] = false;
+			eggBatchState[eggIndices[i].rowIndex][eggIndices[i].colIndex] = false;
+		}
+
+		// detect new startRowIndex ~ i
+		int i = startRowIndex;
+		do {
+			int numOfCols = (i % 2 == 0 ? NUM_COLS-1 : NUM_COLS);
+			bool empty = true;
+			for (int j = 0; j < numOfCols; j++) {
+				if (eggBatchState[i][j]) {
+					empty = false;
+					break;
+				}
+			}
+			if (!empty) break;
+			i = i-1;
+			if (i < 0) i = i + NUM_ROWS;
+		} while (i != startRowIndex);
+
+		// update y coordinate of new non-displayed rows
+		if (i != startRowIndex) {
+			float lastY = eggBatchY[(startRowIndex + 1) % NUM_ROWS];
+			int j = startRowIndex;
+			do {
+				eggBatchY[j] = lastY - EGG_HEIGHT;
+				lastY = eggBatchY[j];
+
+				int numOfCols = (j % 2 ? NUM_COLS-1 : NUM_COLS);
+				for (int k = 0; k < numOfCols; k++) {
+					eggBatchState[j][k] = true;
+				}
+
+				j = j-1;
+				if (j < 0) j = j + NUM_ROWS;
+			} while (j != i);
+
+			// update startRowIndex
+			startRowIndex = i;
 		}
 	}
 
 }
 
 void Screen1View::updateShootingEggAfterCollision() {
-	shootingEgg.setBitmap(touchgfx::Bitmap(nextShootingEggBitmapID));
+	shootingEggBitmapID = nextShootingEggBitmapID;
 	shootingEggState = IDLE;
-	shootingEggX = 107;
-	shootingEggY = 280;
+	shootingEggX = SCREEN_WIDTH * 0.5;
+	shootingEggY = BASE_Y;
 }
 
 void Screen1View::updateNextShootingEggAfterCollision() {
@@ -384,12 +525,6 @@ uint32_t Screen1View::lcd_rand() {
 uint16_t Screen1View::generateRandomEggBitmapID() {
 	uint32_t randomEggBitmapID = lcd_rand() % eggBitmapIDRange;
 	return eggBitmapID[randomEggBitmapID];
-}
-
-
-IndexQueue::IndexQueue() {
-	head = 0;
-	tail = 0;
 }
 
 Index IndexQueue::front() {
@@ -407,8 +542,8 @@ bool IndexQueue::pop() {
 bool IndexQueue::push(Index index) {
 	if (full()) return false;
 	else {
-		tail = (tail+1) % MAX_LEN;
 		q[tail] = index;
+		tail = (tail+1) % MAX_LEN;
 		return true;
 	}
 }
