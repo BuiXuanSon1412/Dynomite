@@ -203,7 +203,7 @@ void Screen1View::updateShootingEgg() {
 				dx = (dx < 0 ? -0.5 * SCREEN_WIDTH : 0.5 * SCREEN_WIDTH);
 				dy = BASE_Y - LIMIT_Y;
 			}
-
+			if (dy <= 0) break;
 			d = sqrt(dx * dx + dy * dy);
 
 			dShootingEggX = -dx / d;
@@ -300,7 +300,7 @@ void Screen1View::renderRealtimeScoreTextArea() {
 }
 void Screen1View::renderScoreContainer() {
 	Unicode::snprintf(currentScoreTextAreaBuffer, sizeof(currentScoreTextAreaBuffer), "%05d", (int)(currentScore));
-	Unicode::snprintf(ScoreTextAreaBuffer, sizeof(highScoreTextAreaBuffer), "%05d", (int)(highScore));
+	Unicode::snprintf(highScoreTextAreaBuffer, sizeof(highScoreTextAreaBuffer), "%05d", (int)(highScore));
 
 	scoreContainer.setVisible(true);
 	scoreContainer.invalidate();
