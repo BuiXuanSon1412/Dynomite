@@ -52,11 +52,21 @@ protected:
     touchgfx::TextAreaWithOneWildcard realtimeScoreTextArea;
     touchgfx::Container scoreContainer;
     touchgfx::BoxWithBorder scoreContainerBackgroundBoxWithBorder;
-    touchgfx::TextArea highScoreLabelTextArea;
-    touchgfx::TextAreaWithOneWildcard currentScoreTextArea;
     touchgfx::TextAreaWithOneWildcard highScoreTextArea;
+    touchgfx::TextAreaWithOneWildcard currentScoreTextArea;
+    touchgfx::TextArea highScoreLabelTextArea;
     touchgfx::TextArea currentScoreLabelTextArea;
     touchgfx::ImageButtonStyle< touchgfx::ClickButtonTrigger >  playButton;
+
+    /*
+     * Wildcard Buffers
+     */
+    static const uint16_t REALTIMESCORETEXTAREA_SIZE = 10;
+    touchgfx::Unicode::UnicodeChar realtimeScoreTextAreaBuffer[REALTIMESCORETEXTAREA_SIZE];
+    static const uint16_t HIGHSCORETEXTAREA_SIZE = 10;
+    touchgfx::Unicode::UnicodeChar highScoreTextAreaBuffer[HIGHSCORETEXTAREA_SIZE];
+    static const uint16_t CURRENTSCORETEXTAREA_SIZE = 10;
+    touchgfx::Unicode::UnicodeChar currentScoreTextAreaBuffer[CURRENTSCORETEXTAREA_SIZE];
 
 private:
 

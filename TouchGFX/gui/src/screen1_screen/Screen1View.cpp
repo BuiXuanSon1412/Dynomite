@@ -2,6 +2,7 @@
 
 #include <cmsis_os.h>
 #include <cmath>
+#include <cstdio>
 #include <utility>
 #include <cstring>
 #include <queue>
@@ -45,6 +46,8 @@ void Screen1View::setupScreen()
     shootingLine.setVisible(false);
     shootingLine.invalidate();
 
+    realtimeScoreTextArea.setVisible(false);
+    realtimeScoreTextArea.invalidate();
     add(scoreContainer);
 }
 
@@ -54,8 +57,11 @@ void Screen1View::tearDownScreen()
 }
 
 void Screen1View::onPlayButtonClicked() {
+
 	scoreContainer.setVisible(false);
 	scoreContainer.invalidate();
+
+	renderRealtimeScoreTextArea();
 
 	gameState = true;
 	startRowIndex = 4;
@@ -76,8 +82,10 @@ void Screen1View::handleTickEvent() {
 
 	if (osKernelGetTickCount() - lastUpdateTickCount > tickPerFrame) {
 		if (gameState == false) {
-			scoreContainer.setVisible(true);
-			scoreContainer.invalidate();
+			updateHighScore();
+			renderScoreContainer();
+			//scoreContainer.setVisible(true);
+			//scoreContainer.invalidate();
 			return;
 		}
 		if (eggBatchY[startRowIndex] + 0.5 * EGG_HEIGHT > LIMIT_Y) {
@@ -92,7 +100,8 @@ void Screen1View::handleTickEvent() {
 			Index shootingEggIndex = detectCollisionBetweenShootingEggAndEggBatch();
 			// detect which eggs shooting egg can drop and update 'eggBatchState'
 			if (shootingEggIndex.rowIndex != -1 && shootingEggIndex.colIndex != -1) {
-				updateEggBatchAfterCollision(shootingEggIndex);
+				uint16_t additionalScore = updateEggBatchAfterCollision(shootingEggIndex);
+				updateCurrentScore(additionalScore);
 				updateShootingEggAfterCollision();
 				updateNextShootingEggAfterCollision();
 			}
@@ -102,6 +111,7 @@ void Screen1View::handleTickEvent() {
 		renderShootingEgg();
 		renderNextShootingEgg();
 		renderShootingLine();
+		renderRealtimeScoreTextArea();
 		invalidate();
 		lastUpdateTickCount = osKernelGetTickCount();
 	}
@@ -276,6 +286,29 @@ void Screen1View::renderShootingLine() {
 		shootingLine.invalidate();
 	}
 }
+
+void Screen1View::updateCurrentScore(uint16_t additionalScore) {
+	currentScore = currentScore + additionalScore;
+}
+
+void Screen1View::updateHighScore() {
+	highScore = (currentScore > highScore ? currentScore : highScore);
+}
+
+void Screen1View::renderRealtimeScoreTextArea() {
+	Unicode::snprintf(realtimeScoreTextAreaBuffer, sizeof(realtimeScoreTextAreaBuffer), "%d", (int)(currentScore));
+	realtimeScoreTextArea.setVisible(true);
+	//realtimeScoreTextArea.setWildcard(currentScoreTextAreaBuffer);
+	realtimeScoreTextArea.invalidate();
+}
+void Screen1View::renderScoreContainer() {
+	Unicode::snprintf(currentScoreTextAreaBuffer, sizeof(currentScoreTextAreaBuffer), "%05d", (int)(currentScore));
+	currentScoreTextArea.setWildcard(currentScoreTextAreaBuffer);
+	Unicode::snprintf(highScoreTextAreaBuffer, sizeof(highScoreTextAreaBuffer), "%05d", (int)(highScore));
+	highScoreTextArea.setWildcard(highScoreTextAreaBuffer);
+	scoreContainer.setVisible(true);
+	scoreContainer.invalidate();
+}
 Index Screen1View::detectCollisionBetweenShootingEggAndEggBatch() {
 	if (shootingEggY - 0.5 * EGG_HEIGHT > eggBatchY[startRowIndex] + 0.5 * EGG_HEIGHT) return {-1, -1};
 
@@ -395,7 +428,7 @@ bool Screen1View::checkCollisionArea(Vec2 p, Vec2 v1, Vec2 v2, Vec2 v3) {
 	return ((b1 == b2) && (b2 == b3));
 }
 
-void Screen1View::updateEggBatchAfterCollision(Index shootingEggIndex) {
+uint16_t Screen1View::updateEggBatchAfterCollision(Index shootingEggIndex) {
 	// temporary update shootingEgg on eggBatch
 	int rowIndex = shootingEggIndex.rowIndex;
 	int colIndex = shootingEggIndex.colIndex;
@@ -419,7 +452,7 @@ void Screen1View::updateEggBatchAfterCollision(Index shootingEggIndex) {
 	// using BFS for simplicity to reach to all eggBatch 's elements with the color of shootingEgg
 
 	Index eggIndices[MAX_LEN];
-	int eggCount = 0;
+	uint16_t eggCount = 0;
 
 	bool visited[NUM_ROWS][NUM_COLS];
 	memset(visited, 0, sizeof(visited));
@@ -505,6 +538,7 @@ void Screen1View::updateEggBatchAfterCollision(Index shootingEggIndex) {
 		}
 	}
 
+	return (eggCount < 3 ? 0 : eggCount);
 }
 
 void Screen1View::updateShootingEggAfterCollision() {
