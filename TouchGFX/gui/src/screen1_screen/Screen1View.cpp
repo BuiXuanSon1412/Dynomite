@@ -84,8 +84,6 @@ void Screen1View::handleTickEvent() {
 		if (gameState == false) {
 			updateHighScore();
 			renderScoreContainer();
-			//scoreContainer.setVisible(true);
-			//scoreContainer.invalidate();
 			return;
 		}
 		if (eggBatchY[startRowIndex] + 0.5 * EGG_HEIGHT > LIMIT_Y) {
@@ -296,16 +294,14 @@ void Screen1View::updateHighScore() {
 }
 
 void Screen1View::renderRealtimeScoreTextArea() {
-	Unicode::snprintf(realtimeScoreTextAreaBuffer, sizeof(realtimeScoreTextAreaBuffer), "%d", (int)(currentScore));
+	Unicode::snprintf(realtimeScoreTextAreaBuffer, sizeof(realtimeScoreTextAreaBuffer), "%05d", (int)(currentScore));
 	realtimeScoreTextArea.setVisible(true);
-	//realtimeScoreTextArea.setWildcard(currentScoreTextAreaBuffer);
 	realtimeScoreTextArea.invalidate();
 }
 void Screen1View::renderScoreContainer() {
 	Unicode::snprintf(currentScoreTextAreaBuffer, sizeof(currentScoreTextAreaBuffer), "%05d", (int)(currentScore));
-	currentScoreTextArea.setWildcard(currentScoreTextAreaBuffer);
-	Unicode::snprintf(highScoreTextAreaBuffer, sizeof(highScoreTextAreaBuffer), "%05d", (int)(highScore));
-	highScoreTextArea.setWildcard(highScoreTextAreaBuffer);
+	Unicode::snprintf(ScoreTextAreaBuffer, sizeof(highScoreTextAreaBuffer), "%05d", (int)(highScore));
+
 	scoreContainer.setVisible(true);
 	scoreContainer.invalidate();
 }
