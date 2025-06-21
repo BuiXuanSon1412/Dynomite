@@ -67,7 +67,7 @@ void Screen1View::onPlayButtonClicked() {
 	startRowIndex = 4;
 	currentScore = 0;
 	dEggBatchY = 0.03;
-
+	frameCountFromStart = 0;
 
 	initializeEggBatch();
 	initializeShootingEgg();
@@ -90,9 +90,11 @@ void Screen1View::handleTickEvent() {
 			gameState = false;
 			return;
 		}
+
 		updateEggBatch();
 		updateShootingEgg();
 		updateShootingLine();
+		updateDEggBatchY();
 
 		if (shootingEggState == AIRBORNE) {
 			Index shootingEggIndex = detectCollisionBetweenShootingEggAndEggBatch();
@@ -102,6 +104,7 @@ void Screen1View::handleTickEvent() {
 				updateCurrentScore(additionalScore);
 				updateShootingEggAfterCollision();
 				updateNextShootingEggAfterCollision();
+				updateEggBitmapIDRange();
 			}
 		}
 
@@ -111,12 +114,16 @@ void Screen1View::handleTickEvent() {
 		renderShootingLine();
 		renderRealtimeScoreTextArea();
 		invalidate();
+
+		frameCountFromStart++;
 		lastUpdateTickCount = osKernelGetTickCount();
 	}
 
 }
 
 void Screen1View::initializeEggBatch() {
+	dEggBatchY = 0.03;
+
 	int i = startRowIndex;
 	float lastY = BASE_Y;
 	do {
@@ -305,6 +312,28 @@ void Screen1View::renderScoreContainer() {
 	scoreContainer.setVisible(true);
 	scoreContainer.invalidate();
 }
+
+void Screen1View::updateEggBitmapIDRange() {
+	// 3 -> 4 -> 5 -> 6
+	// The number of types of egg increases , the density of similarly colored egg decreases
+	// Estimated highest score is 99999
+	if (currentScore < 100) {
+		eggBitmapIDRange = 3;
+	}
+	else if (currentScore < 300) {
+		eggBitmapIDRange = 4;
+	}
+	else if (currentScore < 1000) {
+		eggBitmapIDRange = 5;
+	}
+	else if (currentScore < 5000) {
+		eggBitmapIDRange = 6;
+	}
+}
+void Screen1View::updateDEggBatchY() {
+	dEggBatchY = 1.0f - (1.0f - 0.03f) * expf(-0.1f * frameCountFromStart);
+}
+
 Index Screen1View::detectCollisionBetweenShootingEggAndEggBatch() {
 	if (shootingEggY - 0.5 * EGG_HEIGHT > eggBatchY[startRowIndex] + 0.5 * EGG_HEIGHT) return {-1, -1};
 

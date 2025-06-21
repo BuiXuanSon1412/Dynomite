@@ -61,6 +61,7 @@ protected:
     const int framePerSecond = 30;
     float dEggBatchY;
     bool gameState;
+    uint32_t frameCountFromStart;
     uint32_t lastUpdateTickCount;
 
     // seed for random generator
@@ -123,6 +124,9 @@ private:
 
     void renderRealtimeScoreTextArea();
     void renderScoreContainer();
+
+    void updateEggBitmapIDRange();
+    void updateDEggBatchY();
 
     Index detectCollisionBetweenShootingEggAndEggBatch();
     bool checkCollisionArea(Vec2 p, Vec2 v1, Vec2 v2, Vec2 v3);
