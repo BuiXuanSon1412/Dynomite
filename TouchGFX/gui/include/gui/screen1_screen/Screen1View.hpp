@@ -6,7 +6,7 @@
 //#include <touchgfx/widgets/canvas/CanvasLine.hpp>
 #include <images/BitmapDatabase.hpp>
 
-#define NUM_ROWS 10
+#define NUM_ROWS 12
 #define NUM_COLS 9
 
 #define EGG_WIDTH 26
@@ -100,6 +100,8 @@ protected:
     const int stepsForEvenRowIndex[6][2] = {{0, -1}, {0, 1}, {-1, 0}, {-1, 1}, {1, 0}, {1, 1}};
     const int stepsForOddRowIndex[6][2] = {{0, -1}, {0, 1}, {-1, -1}, {-1, 0}, {1, -1}, {1, 0}};
 
+    const int upperBoundScoreByLevel[4] = {100, 300, 1000, 5000};
+    int level;
     //const int steps[2][6][2] = {{{0, -1}, {0, 1}, {-1, 0}, {-1, 1}, {1, 0}, {1, 1}},
     //		{{0, -1}, {0, 1}, {-1, -1}, {-1, 0}, {1, -1}, {1, 0}}};
 private:
@@ -127,6 +129,8 @@ private:
 
     void updateEggBitmapIDRange();
     void updateDEggBatchY();
+
+    void updateEggBatchAfterLevelUp();
 
     Index detectCollisionBetweenShootingEggAndEggBatch();
     bool checkCollisionArea(Vec2 p, Vec2 v1, Vec2 v2, Vec2 v3);

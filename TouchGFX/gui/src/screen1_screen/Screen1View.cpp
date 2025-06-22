@@ -17,11 +17,6 @@ Screen1View::Screen1View()
 	// prepare for game flow
 	gameState = false;
 
-	// from the start, there will be 3 types of eggs
-	eggBitmapIDRange = 3;
-
-	// generate seed for random generator
-	seed = 1;
 }
 
 void Screen1View::setupScreen()
@@ -66,8 +61,11 @@ void Screen1View::onPlayButtonClicked() {
 	gameState = true;
 	startRowIndex = 4;
 	currentScore = 0;
+	eggBitmapIDRange = 3;
 	dEggBatchY = 0.03;
 	frameCountFromStart = 0;
+	level = 0;
+	seed = osKernelGetTickCount();
 
 	initializeEggBatch();
 	initializeShootingEgg();
@@ -293,7 +291,7 @@ void Screen1View::renderShootingLine() {
 }
 
 void Screen1View::updateCurrentScore(uint16_t additionalScore) {
-	currentScore = currentScore + additionalScore;
+	currentScore = currentScore + 5 * additionalScore;
 }
 
 void Screen1View::updateHighScore() {
@@ -317,21 +315,19 @@ void Screen1View::updateEggBitmapIDRange() {
 	// 3 -> 4 -> 5 -> 6
 	// The number of types of egg increases , the density of similarly colored egg decreases
 	// Estimated highest score is 99999
-	if (currentScore < 100) {
-		eggBitmapIDRange = 3;
-	}
-	else if (currentScore < 300) {
-		eggBitmapIDRange = 4;
-	}
-	else if (currentScore < 1000) {
-		eggBitmapIDRange = 5;
-	}
-	else if (currentScore < 5000) {
-		eggBitmapIDRange = 6;
+	if (level < 4 && currentScore > upperBoundScoreByLevel[level]) {
+		level++;
+		eggBitmapIDRange++;
+		updateEggBatchAfterLevelUp();
+
 	}
 }
 void Screen1View::updateDEggBatchY() {
-	dEggBatchY = 1.0f - (1.0f - 0.03f) * expf(-0.1f * frameCountFromStart);
+	dEggBatchY = 1.0f - (1.0f - 0.03f) * expf(-0.00001f * frameCountFromStart);
+}
+
+void Screen1View::updateEggBatchAfterLevelUp() {
+
 }
 
 Index Screen1View::detectCollisionBetweenShootingEggAndEggBatch() {
